@@ -20,6 +20,8 @@ import java.sql.SQLException;
 import java.util.HashSet;
 import java.util.Set;
 
+import eu.solutions.a2.cdc.oracle.connection.OraDictSqlTexts;
+import eu.solutions.a2.cdc.oracle.connection.OraPoolConnectionFactory;
 import org.apache.kafka.connect.data.Schema;
 import org.apache.kafka.connect.data.SchemaBuilder;
 import org.apache.kafka.connect.data.Struct;

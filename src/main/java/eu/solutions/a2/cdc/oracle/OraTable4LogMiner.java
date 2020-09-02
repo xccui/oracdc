@@ -25,6 +25,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import eu.solutions.a2.cdc.oracle.connection.OraDictSqlTexts;
+import eu.solutions.a2.cdc.oracle.connection.OraPoolConnectionFactory;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.kafka.connect.data.SchemaBuilder;
 import org.apache.kafka.connect.data.Struct;

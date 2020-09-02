@@ -27,6 +27,7 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import eu.solutions.a2.cdc.oracle.connection.OraPoolConnectionFactory;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.kafka.connect.errors.ConnectException;
 import org.slf4j.Logger;
@@ -222,7 +223,7 @@ public class OraCdcLogMinerWorkerThread extends Thread {
 					if (rsLogMiner == null) {
 						rsLogMiner = psLogMiner.executeQuery();
 					}
-					final long readStartMillis = System.currentTimeMillis(); 
+					final long readStartMillis = System.currentTimeMillis();
 					while (rsLogMiner.next()) {
 						final short operation = rsLogMiner.getShort("OPERATION_CODE");
 						final String xid = rsLogMiner.getString("XID");
@@ -379,6 +380,7 @@ public class OraCdcLogMinerWorkerThread extends Thread {
 						lastGuaranteedRsId = lastRsId;
 						lastGuaranteedSsn = lastSsn;
 					}
+					LOGGER.info("Active transactions {}", activeTransactions.size());
 					logMiner.stop();
 					rsLogMiner.close();
 					rsLogMiner = null;
@@ -433,7 +435,7 @@ public class OraCdcLogMinerWorkerThread extends Thread {
 				lastRsId = lastGuaranteedRsId;
 				lastSsn = lastGuaranteedSsn;
 				running.set(false);
-				task.stop(false);
+				//task.stop(false);
 				throw new ConnectException(e);
 			}
 		}

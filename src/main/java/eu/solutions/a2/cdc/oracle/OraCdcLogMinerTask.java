@@ -43,6 +43,8 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import eu.solutions.a2.cdc.oracle.connection.OraDictSqlTexts;
+import eu.solutions.a2.cdc.oracle.connection.OraPoolConnectionFactory;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.kafka.connect.errors.ConnectException;
 import org.apache.kafka.connect.source.SourceRecord;
@@ -82,7 +84,7 @@ public class OraCdcLogMinerTask extends SourceTask {
 	private Set<Long> tablesOutOfScope;
 	private Map<String, OraCdcTransaction> activeTransactions;
 	private BlockingQueue<OraCdcTransaction> committedTransactions;
-	private OraCdcLogMinerWorkerThread worker;
+	private OraCdcLogMinerWorkerThread logMinerWorker;
 	private OraCdcTransaction transaction;
 	private boolean lastStatementInTransaction = true;
 	private boolean needToStoreState = false;
@@ -380,7 +382,7 @@ public class OraCdcLogMinerTask extends SourceTask {
 						tablesQueue);
 			}
 
-			worker = new OraCdcLogMinerWorkerThread(
+			logMinerWorker = new OraCdcLogMinerWorkerThread(
 					this,
 					pollInterval,
 					partition,
@@ -403,7 +405,7 @@ public class OraCdcLogMinerTask extends SourceTask {
 					topicNameStyle,
 					topicNameDelimiter);
 			if (rewind) {
-				worker.rewind(firstScn, firstRsId, firstSsn);
+				logMinerWorker.rewind(firstScn, firstRsId, firstSsn);
 			}
 
 		} catch (SQLException | InvalidPathException | IOException e) {
@@ -415,7 +417,7 @@ public class OraCdcLogMinerTask extends SourceTask {
 		if (execInitialLoad) {
 			initialLoadWorker.start();
 		}
-		worker.start();
+		logMinerWorker.start();
 		needToStoreState = true;
 		runLatch = new CountDownLatch(1);
 		isPollRunning = new AtomicBoolean(false);
@@ -558,8 +560,8 @@ public class OraCdcLogMinerTask extends SourceTask {
 			// We can stop before runLatch initialization due to invalid parameters
 			runLatch.countDown();
 			if (stopWorker) {
-				worker.shutdown();
-				while (worker.isRunning()) {
+				logMinerWorker.shutdown();
+				while (logMinerWorker.isRunning()) {
 					try {
 						LOGGER.debug("Waiting {} ms for worker thread to stop...", WAIT_FOR_WORKER_MILLIS);
 						Thread.sleep(WAIT_FOR_WORKER_MILLIS);
@@ -609,9 +611,9 @@ public class OraCdcLogMinerTask extends SourceTask {
 		ops.setInstanceName(rdbmsInfo.getInstanceName());
 		ops.setHostName(rdbmsInfo.getHostName());
 		ops.setLastOpTsMillis(System.currentTimeMillis());
-		ops.setLastScn(worker.getLastScn());
-		ops.setLastRsId(worker.getLastRsId());
-		ops.setLastSsn(worker.getLastSsn());
+		ops.setLastScn(logMinerWorker.getLastScn());
+		ops.setLastRsId(logMinerWorker.getLastRsId());
+		ops.setLastSsn(logMinerWorker.getLastSsn());
 		ops.setInitialLoad(initialLoadStatus);
 		if (saveFinalState) {
 			if (transaction != null) {

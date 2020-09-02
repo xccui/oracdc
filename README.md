@@ -23,7 +23,7 @@ _eu.solutions.a2.cdc.oracle.OraCdcLogMinerConnector_ publishes a number of metri
 3. Proper file system parameters and sizing for path where [Chronicle Queue](https://github.com/OpenHFT/Chronicle-Queue) objects resides.
 4. Proper open files hard and soft limits for OS user running **oracdc** 
 
-## eu.solutions.a2.cdc.oracle.OraCdcSourceConnector
+## eu.solutions.a2.cdc.oracle.mview.OraCdcSourceConnector
 This Source Connector uses Oracle RDBMS [materialized view log's](https://docs.oracle.com/en/database/oracle/oracle-database/12.2/sqlrf/CREATE-MATERIALIZED-VIEW-LOG.html) as source for data changes and materializes Oracle RDBMS materialized view log at heterogeneous database system. No materialized view should consume information from materialized view log's which are used by **oracdc**. Unlike _eu.solutions.a2.cdc.oracle.OraCdcLogMinerConnector_ this SourceConnector works with BLOB, and CLOB data types. If you need support for Oracle Database _LONG_, and/or _LONG RAW_ data types please send us an email at [oracle@a2-solutions.eu](mailto:oracle@a2-solutions.eu).
 
 
@@ -163,7 +163,7 @@ For the user who will be used to connect to physical standby database create a O
 To run **oracdc** in this mode parameter `a2.standby.activate` must set to `true`.
 
 
-## Materialized View logs as CDC source (eu.solutions.a2.cdc.oracle.OraCdcSourceConnector)
+## Materialized View logs as CDC source (eu.solutions.a2.cdc.oracle.mview.OraCdcSourceConnector)
 
 Create materialized view log's over replicated tables. These materialized view logs _must_ be created _with_ following options - **with primary key**, _and/or_ **with rowid**, **sequence**, **excluding new values** and _without_ **commit scn** option. You do not need to specify _column list_ while creating materialized view log for using with **oracdc**. **oracdc** reads from materialized view log only primary key value and/or rowid of row in master table.  Table below describes how **oracdc** operates depending on the materialized view log settings
 

@@ -17,8 +17,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import eu.solutions.a2.cdc.oracle.OraDictSqlTexts;
-import eu.solutions.a2.cdc.oracle.OraPoolConnectionFactory;
+import eu.solutions.a2.cdc.oracle.connection.OraDictSqlTexts;
+import eu.solutions.a2.cdc.oracle.connection.OraPoolConnectionFactory;
 import eu.solutions.a2.cdc.oracle.OraRdbmsInfo;
 import eu.solutions.a2.cdc.oracle.OraTable4LogMiner;
 import eu.solutions.a2.cdc.oracle.ParamConstants;

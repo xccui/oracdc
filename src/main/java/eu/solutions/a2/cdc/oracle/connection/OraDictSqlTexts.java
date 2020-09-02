@@ -11,7 +11,7 @@
  * the License for the specific language governing permissions and limitations under the License.
  */
 
-package eu.solutions.a2.cdc.oracle;
+package eu.solutions.a2.cdc.oracle.connection;
 
 /**
  * 
@@ -85,6 +85,24 @@ where  C.OWNER='SCOTT' and C.TABLE_NAME='DEPT'
 			"from   ALL_TAB_COLUMNS C\n" +
 			"where  C.OWNER=? and C.TABLE_NAME=?\n" +
 			"  and  (C.DATA_TYPE in ('DATE', 'FLOAT', 'NUMBER', 'BINARY_FLOAT', 'BINARY_DOUBLE', 'RAW', 'CHAR', 'NCHAR', 'VARCHAR2', 'NVARCHAR2', 'BLOB', 'CLOB') or C.DATA_TYPE like 'TIMESTAMP%')";
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 	/*
 select C.COLUMN_NAME, C.DATA_TYPE, C.DATA_LENGTH, C.DATA_PRECISION, C.DATA_SCALE, C.NULLABLE, C.COLUMN_ID,
        (select O.OBJECT_ID
@@ -327,7 +345,8 @@ end;
 			"	 ENDSCN => ?,\n" +
 			"	 OPTIONS =>  \n" +
 			"      DBMS_LOGMNR.SKIP_CORRUPTION +\n" +
-			"      DBMS_LOGMNR.NO_SQL_DELIMITER +\n" + 
+			"      DBMS_LOGMNR.DICT_FROM_ONLINE_CATALOG +\n" +
+			"      DBMS_LOGMNR.NO_SQL_DELIMITER +\n" +
 			"      DBMS_LOGMNR.NO_ROWID_IN_STMT);\n" + 
 			"end;\n";
 
@@ -455,4 +474,7 @@ where  O.OBJECT_TYPE in ('TABLE', 'TABLE PARTITION', 'TABLE SUBPARTITION')
 		"  and  O.OBJECT_ID=?\n" +
 		"  and  O.CON_ID=?\n";
 
+	public static void main(String[] args) {
+		System.out.println(ADD_ARCHIVED_LOG);
+	}
 }

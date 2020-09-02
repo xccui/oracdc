@@ -21,6 +21,8 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import eu.solutions.a2.cdc.oracle.connection.OraDictSqlTexts;
+import eu.solutions.a2.cdc.oracle.connection.OraPoolConnectionFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

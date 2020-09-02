@@ -24,7 +24,7 @@ import org.apache.kafka.connect.data.SchemaBuilder;
 import org.apache.kafka.connect.errors.DataException;
 
 import eu.solutions.a2.cdc.oracle.OraDumpDecoder;
-import eu.solutions.a2.cdc.oracle.OraPoolConnectionFactory;
+import eu.solutions.a2.cdc.oracle.connection.OraPoolConnectionFactory;
 import oracle.sql.TIMESTAMPLTZ;
 import oracle.sql.TIMESTAMPTZ;
 

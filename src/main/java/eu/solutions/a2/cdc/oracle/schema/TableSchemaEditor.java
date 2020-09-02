@@ -58,7 +58,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import eu.solutions.a2.cdc.oracle.OraColumn;
-import eu.solutions.a2.cdc.oracle.OraPoolConnectionFactory;
+import eu.solutions.a2.cdc.oracle.connection.OraPoolConnectionFactory;
 import eu.solutions.a2.cdc.oracle.OraTable4LogMiner;
 import eu.solutions.a2.cdc.oracle.utils.ExceptionUtils;
 
@@ -365,11 +365,16 @@ public class TableSchemaEditor extends JFrame {
 		menuItemConnect.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_C, ActionEvent.ALT_MASK));
 		menuItemConnect.addActionListener(event -> {
 			// jdbc:oracle:thin@<HOST>:<PORT>:<DATABASE_NAME>
-			JTextField jtfHost = new JTextField(props.get("host"));
-			JTextField jtfPort = new JTextField(props.get("port"));
-			JTextField jtfSid = new JTextField(props.get("sid"));
-			JTextField jtfUsername = new JTextField(props.get("user"));
-			JPasswordField jtfPassword = new JPasswordField();
+//			JTextField jtfHost = new JTextField(props.get("host"));
+//			JTextField jtfPort = new JTextField(props.get("port"));
+//			JTextField jtfSid = new JTextField(props.get("sid"));
+//			JTextField jtfUsername = new JTextField(props.get("user"));
+//			JPasswordField jtfPassword = new JPasswordField();
+			JTextField jtfHost = new JTextField("tws2e-db.w10e.com");
+			JTextField jtfPort = new JTextField("1521");
+			JTextField jtfSid = new JTextField("tws2e");
+			JTextField jtfUsername = new JTextField("bersler");
+			JPasswordField jtfPassword = new JPasswordField("difnKE#3BhngVG4");
 			final JComponent[] inputs = new JComponent[] {
 					new JLabel("Oracle Host"),
 					jtfHost,

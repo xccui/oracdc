@@ -11,7 +11,7 @@
  * the License for the specific language governing permissions and limitations under the License.
  */
 
-package eu.solutions.a2.cdc.oracle;
+package eu.solutions.a2.cdc.oracle.mview;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -22,6 +22,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import eu.solutions.a2.cdc.oracle.OraCdcSourceConnectorConfig;
+import eu.solutions.a2.cdc.oracle.OraCdcSourceTask;
+import eu.solutions.a2.cdc.oracle.OraRdbmsInfo;
+import eu.solutions.a2.cdc.oracle.ParamConstants;
+import eu.solutions.a2.cdc.oracle.connection.OraDictSqlTexts;
+import eu.solutions.a2.cdc.oracle.connection.OraPoolConnectionFactory;
 import org.apache.kafka.common.config.ConfigDef;
 import org.apache.kafka.connect.connector.Task;
 import org.apache.kafka.connect.errors.ConnectException;
