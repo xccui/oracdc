@@ -13,7 +13,7 @@ import java.util.Random;
 
 public class OraMockSource implements Runnable {
 
-  private static Logger LOGGER = LoggerFactory.getLogger(OraMockSource.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(OraMockSource.class);
 
   private static final String CONFIG_PATH = "etc/mock_source.properties";
   private static final String ORACLE_URL_KEY = "url";
@@ -21,10 +21,26 @@ public class OraMockSource implements Runnable {
   private static final String ORACLE_PASSWORD_KEY = "password";
   private static final String SLEEP_KEY = "sleep";
 
-  private static final String INSERT_SQL =
-      "INSERT INTO BOR_USER.TEST " +
-          "(first_name, last_name, birth_date, height, sex, update_time) " +
-          "VALUES (?, ?, ?, ?, ?, CURRENT_TIMESTAMP)";
+  private static final String USER_GROUP_TEST_INSERT_SQL =
+      "INSERT INTO BOR_CDC.USER_GROUP_TEST " +
+          "(GROUP_ID, GROUP_NAME, GROUP_STATUS) " +
+          "VALUES (?, ?, ?)";
+
+  private static final String USER_TEST_INSERT_SQL =
+      "INSERT INTO BOR_CDC.USER_TEST " +
+          "(FIRST_NAME, LAST_NAME, BIRTH_DATE, HEIGHT, SEX, UPDATE_TIME, GROUP_ID) " +
+          "VALUES (?, ?, ?, ?, ?, CURRENT_TIMESTAMP, ?)";
+
+  private static final String USER_GROUP_TEST_UPDATE_SQL =
+      "UPDATE BOR_CDC.USER_GROUP_TEST" +
+          " SET GROUP_STATUS = 'P'" +
+          " WHERE GROUP_ID = ?";
+
+  private static final String USER_TEST_QUERY_LAST_SQL =
+      "SELECT USER_ID FROM BOR_CDC.USER_TEST WHERE GROUP_ID = ?";
+
+  private static final String USER_TEST_DELETE_SQL =
+      "DELETE FROM BOR_CDC.USER_TEST WHERE USER_ID = ?";
 
   private final String url;
   private final String user;
@@ -55,29 +71,63 @@ public class OraMockSource implements Runnable {
       running = false;
     }
     try (Connection connection = OraPoolConnectionFactory.getConnection()) {
-      PreparedStatement statement = connection.prepareStatement(INSERT_SQL);
       int i = 0;
+      PreparedStatement userGroupInsertStat = connection.prepareStatement(USER_GROUP_TEST_INSERT_SQL);
+      PreparedStatement userInsertStat = connection.prepareStatement(USER_TEST_INSERT_SQL);
+      PreparedStatement userGroupUpdateStat = connection.prepareStatement(USER_GROUP_TEST_UPDATE_SQL);
+      PreparedStatement userQueryLastStat = connection.prepareStatement(USER_TEST_QUERY_LAST_SQL);
+      PreparedStatement userDeleteStat = connection.prepareStatement(USER_TEST_DELETE_SQL);
+      String groupId;
+      int randomInt;
       while (running) {
-        statement.setString(1, "foo");
-        statement.setString(2, "bar");
-        statement.setDate(3, new Date(System.currentTimeMillis() - 1000 * 60 * 60 * 24));
-        if (i % 2 == 0) {
-          statement.setFloat(4, 100 + 100 * random.nextFloat());
-        } else {
-          statement.setNull(4, JDBCType.FLOAT.getVendorTypeNumber());
+        // 1. Insert the group and a bunch of users
+        randomInt = random.nextInt(1000);
+        groupId = System.currentTimeMillis() + "_" + randomInt;
+        userGroupInsertStat.setString(1, groupId);
+        userGroupInsertStat.setString(2, String.valueOf(randomInt));
+        userGroupInsertStat.setString(3, "U");
+        userGroupInsertStat.execute();
+
+        int users = random.nextInt(10) + 1;
+        for (int j = 0; j < users; ++j) {
+          userInsertStat.setString(1, "FirstName_" + randomInt);
+          userInsertStat.setString(2, "LastName_" + randomInt);
+          userInsertStat.setDate(3, new Date(System.currentTimeMillis() - 1000 * 60 * 60 * 24));
+          if (i % 2 == 0) {
+            userInsertStat.setFloat(4, 100 + 100 * random.nextFloat());
+          } else {
+            userInsertStat.setNull(4, JDBCType.FLOAT.getVendorTypeNumber());
+          }
+          userInsertStat.setString(5, "UNKNOWN");
+          userInsertStat.setString(6, groupId);
+          userInsertStat.addBatch();
+          userInsertStat.clearParameters();
+          ++i;
         }
-        statement.setString(5, "UNKNOWN");
+        userInsertStat.executeBatch();
+        connection.commit();
+        LOGGER.debug("Insert " + users + " users with groupId = "+ groupId);
         Thread.sleep(sleep);
-        if (i % 3 == 0) {
-          LOGGER.debug("Commit with i = {}", i);
-          statement.executeBatch();
+
+        // 2. Update the status of the group
+        userGroupUpdateStat.setString(1, groupId);
+        userGroupUpdateStat.execute();
+        connection.commit();
+        LOGGER.debug("Update the group with groupId = " + groupId);
+        Thread.sleep(sleep);
+
+        // 3. Delete a user from the last group
+        userQueryLastStat.setString(1, groupId);
+        ResultSet rs = userQueryLastStat.executeQuery();
+        if (rs.next()) {
+          long userId = rs.getLong(1);
+          userDeleteStat.setLong(1, userId);
+          userDeleteStat.execute();
+          rs.close();
           connection.commit();
-        } else {
-          LOGGER.debug("Insert new with i = {}", i);
-          statement.addBatch();
-          statement.clearParameters();
+          LOGGER.debug("Remove a user with user_id = " + userId);
         }
-        ++i;
+        Thread.sleep(sleep);
       }
     } catch (SQLException | InterruptedException throwables) {
       throwables.printStackTrace();
